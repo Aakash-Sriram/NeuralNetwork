@@ -69,7 +69,8 @@ int main(void){
             }
             nn.layers[i].nodes[j].bias=dist(rng);
             feedforward(nn.layers[i].nodes[j],nn.layers[i-1]);
-            std::cout<<nn.layers[i].nodes[j].output<<" ";
+            std::cout<<"z: "<<nn.layers[i].nodes[j].z<<std::endl;
+            std::cout<<"output: "<<nn.layers[i].nodes[j].output<<" "<<std::endl;
         }
     }
 }
