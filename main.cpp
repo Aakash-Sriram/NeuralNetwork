@@ -8,35 +8,25 @@ struct Node{
     float output;
     float bias;
     float z;//value put in sigmod function
-}
+};
 struct Layer{
     Node* nodes;
     int noOfNodes;
-}
+};
 struct NeuralNetwork{
     Layer* layers;
     int noOfLayers;
-}
+};
 float sigmoid(float x){
-    return (1.0f/(1,0f+std::exp(-x)));
+    return (1.0f/(1.0f+std::exp(-x)));
 }
-float feedforward(Node& neuron , Layer& prevLayer){
+void feedforward(Node& neuron , Layer& prevLayer){
     float sum = neuron.bias;
     for(int i=0;i<prevLayer.noOfNodes;i++){
         sum+=prevLayer.nodes[i].output * neuron.weights[i];
     }
-    neuron.z=sums
-    neuron.output=sigmoid(sum)
-    return neuron.output;
-}
-std::vector<int> flatten(std::vector<std::vector<int>> input){
-    vector<int> res;
-    for(auto row:input){
-        for(auto val:row){
-            res.push_back(val);
-        }
-    }
-    return res;
+    neuron.z=sum;
+    neuron.output=sigmoid(sum);
 }
 int main(void){
     std::cout<<"Neural Network from ground up in C++ yo" << std::endl;
@@ -54,5 +44,32 @@ int main(void){
         }
         std::cout << '\n';
     }
+    std::mt19937 rng(1);  // Seed = 1
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+    NeuralNetwork nn;
+    nn.noOfLayers=3;
+    nn.layers = new Layer[nn.noOfLayers];//1 input 1 hidden 1 ouput
+    nn.layers[0].noOfNodes=2;
+    nn.layers[1].noOfNodes=2;
+    nn.layers[2].noOfNodes=1;
     
+    nn.layers[0].nodes = new Node[2];
+    nn.layers[1].nodes = new Node[2];
+    nn.layers[2].nodes = new Node[1];
+
+    nn.layers[0].nodes[0].output=X[0][0];
+    nn.layers[0].nodes[1].output=X[0][1];
+    
+    for(int i=1;i<nn.noOfLayers;i++){
+        for(int j=0;j<nn.layers[i].noOfNodes;j++){
+            nn.layers[i].nodes[j].weights = new float[nn.layers[i-1].noOfNodes];
+            for(int k=0;k<nn.layers[i-1].noOfNodes;k++){
+                nn.layers[i].nodes[j].weights[k]=dist(rng);
+            }
+            nn.layers[i].nodes[j].bias=dist(rng);
+            feedforward(nn.layers[i].nodes[j],nn.layers[i-1]);
+            std::cout<<nn.layers[i].nodes[j].output<<" ";
+        }
+    }
 }
