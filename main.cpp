@@ -70,30 +70,47 @@ NeuralNetwork setupNN(int noOfLayers,std::vector<int>nodesPerLayer,std::vector<i
     }
     return nn;
 }
+void feedforward(const Layer& prevLayer , Layer& currLayer){
+    for(int i=0;i<currLayer.noOfNodes;i++){
+        float sum = currLayer.nodes[i].bias;
+        for(int j=0;j<prevLayer.noOfNodes;j++){
+            sum += (prevLayer.nodes[j].output*currLayer.nodes[i].weights[j]);
+        }
+        currLayer.nodes[i].z=sum;
+        currLayer.nodes[i].output=sigmoid(sum);
+    }
+}
 int main(void){
     std::cout<<"Neural Network from ground up in C++ yo" << std::endl;
-    std::vector<std::vector<int>> X = {
-        {1, 0},
-        {0, 1},
-        {1, 1},
-        {0, 0}
-    };
 
-    //Print the input data
-    for (auto x : X) {
-        for (auto i : x) {
-            std::cout << i << " ";
-        }
-        std::cout << '\n';
-    }
-
-    NeuralNetwork nn = setupNN(3,std::vector<int>{2,2,3},std::vector<int>{1,0});
-    for(int i=0;i<nn.noOfLayers;i++){
-        for(int j=0;j<nn.layers[i].noOfNodes;j++){
-            std::cout<<nn.layers[i].nodes[j].output<<" ";
+    NeuralNetwork nn = setupNN(3,std::vector<int>{2,2,1},std::vector<int>{1,0});
+    for(int i=1;i<nn.noOfLayers;i++){
+        if(i==1){
+            feedforward(nn.layers[0],nn.layers[i]);
+        }else{
+            feedforward(nn.layers[i-1],nn.layers[i]);
         }
     }
+    for(int i=0;i<nn.layers[2].noOfNodes;i++){
+        std::cout<<nn.layers[2].nodes[i].output<<" ";
+    }
 
+}
+
+    // std::vector<std::vector<int>> X = {
+    //     {1, 0},
+    //     {0, 1},
+    //     {1, 1},
+    //     {0, 0}
+    // };
+    
+    // //Print the input data
+    // for (auto x : X) {
+    //     for (auto i : x) {
+    //         std::cout << i << " ";
+    //     }
+    //     std::cout << '\n';
+    // }
     // nn.noOfLayers=3;
     // nn.layers = new Layer[nn.noOfLayers];//1 input 1 hidden 1 ouput
     // nn.layers[0].noOfNodes=2;
@@ -103,13 +120,13 @@ int main(void){
     // nn.layers[0].nodes = new Node[2];
     // nn.layers[1].nodes = new Node[2];
     // nn.layers[2].nodes = new Node[1];
-
+    
     // nn.layers[0].nodes[0].output=X[0][0];
     // nn.layers[0].nodes[1].output=X[0][1];
     
     // for(int i=1;i<nn.noOfLayers;i++){
-    //     for(int j=0;j<nn.layers[i].noOfNodes;j++){
-    //         nn.layers[i].nodes[j].weights = new float[nn.layers[i-1].noOfNodes];
+        //     for(int j=0;j<nn.layers[i].noOfNodes;j++){
+            //         nn.layers[i].nodes[j].weights = new float[nn.layers[i-1].noOfNodes];
     //         for(int k=0;k<nn.layers[i-1].noOfNodes;k++){
     //             nn.layers[i].nodes[j].weights[k]=dist(rng);
     //         }
@@ -119,4 +136,3 @@ int main(void){
     //         std::cout<<"output: "<<nn.layers[i].nodes[j].output<<" "<<std::endl;
     //     }
     // }
-}
