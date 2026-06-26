@@ -28,6 +28,17 @@ void feedforward(Node& neuron , Layer& prevLayer){
     neuron.z=sum;
     neuron.output=sigmoid(sum);
 }
+
+NeuralNetwork* setupNN(int noOfLayers,std::vector<int>nodesPerLayer,syd::vector<int> input){
+    NeuralNetwork* nn;
+    nn.noOfLayers = noOfLayers;
+    nn.layers = new Layer[noOfLayers];
+    for(int i=1;i<noOfLayers;i++){
+        nn.layers[i] = setupLayer(nn.layers[i-1],nodesPerLayer[i]);
+    }
+    return nn;
+    
+}
 int main(void){
     std::cout<<"Neural Network from ground up in C++ yo" << std::endl;
     std::vector<std::vector<int>> X = {
