@@ -27,9 +27,9 @@ Layer setupLayer1(int noOfNodes , std::vector<int> inp){
     return currLayer;
 }
 NeuralNetwork setupNN(int noOfLayers,std::vector<int>nodesPerLayer,std::vector<int> input){
-    if(nodesPerLayer[0]!=input.size()){
+    if(nodesPerLayer[0]!=static_cast<int>(input.size())){
         std::cout<<"1st layer no of nodes != input";
-        exit(0);
+        // exit(0);
     };
     NeuralNetwork nn;
     nn.noOfLayers = noOfLayers;
@@ -49,4 +49,50 @@ void feedforward(const Layer& prevLayer , Layer& currLayer){
         currLayer.nodes[i].z=sum;
         currLayer.nodes[i].output=sigmoid(sum);
     }
+}
+void printModelDetails(NeuralNetwork& nn){
+    std::cout<<nn.noOfLayers<<std::endl;
+    for(int i=0;i<nn.noOfLayers;i++){
+        Layer l = nn.layers[i];
+        if(i==nn.noOfLayers-1){
+            std::cout<<l.noOfNodes;
+        }else{
+            std::cout<<l.noOfNodes<<" ";
+        }
+    }
+    std::cout<<std::endl;
+    for(int i=0;i<nn.layers[0].noOfNodes;i++){
+        if(i==nn.layers[0].noOfNodes-1){
+            std::cout<<nn.layers[0].nodes[i].output;
+        }else{
+            std::cout<<nn.layers[0].nodes[i].output<<" ";
+        }
+    }
+    std::cout<<std::endl;
+    for(int i=1;i<nn.noOfLayers;i++){
+        Layer l = nn.layers[i];
+        for(int j=0;j<l.noOfNodes;j++){
+            Node n = l.nodes[j];
+            Layer prevLayer = nn.layers[i-1]; 
+            for(int k=0;k<prevLayer.noOfNodes;k++){
+                std::cout<<n.weights[k]<<" ";
+            }
+        }
+    }
+    std::cout<<std::endl;
+    for(int i=1;i<nn.noOfLayers;i++){
+        Layer l = nn.layers[i];
+        for(int j=0;j<l.noOfNodes;j++){
+            std::cout<<l.nodes[j].bias<<" ";
+        }
+    } 
+}
+NeuralNetwork loadModel(std::string filename){
+    int noOfLayers = loadNoOfLayers(filename);
+    std::vector<int> nodesPerLayer = loadNodesPerLayer(filename);
+    std::vector<int> input = loadInput(filename);
+    NeuralNetwork nn = setupNN(noOfLayers, nodesPerLayer, input);
+    loadweights(nn, filename);
+    loadbias(nn, filename);
+    return nn;
 }
