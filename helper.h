@@ -1,6 +1,6 @@
 #pragma once
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
 #include<random>
 #include<numbers>
 #include<cmath>

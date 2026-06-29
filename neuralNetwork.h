@@ -1,4 +1,5 @@
 #include "helper.h"
+#include "loader.h"
 Layer setupLayersAfter1(Layer prevLayer,int noOfNodes);
 float sigmoid(float x);
 void feedforward(const Layer& prevLayer , Layer& currLayer);
