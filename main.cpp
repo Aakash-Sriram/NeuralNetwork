@@ -1,89 +1,9 @@
-#include<iostream>
-#include<vector>
-#include<random>
-#include<numbers>
-#include<cmath>
+#include "neuralNetwork.h"
 
-std::mt19937 rng(1);  // Seed = 1
-std::uniform_real_distribution<double> dist(0.0, 1.0);
-
-struct Node{
-    float* weights;
-    float output;
-    float bias;
-    float z;//value put in sigmod function
-};
-struct Layer{
-    Node* nodes;
-    int noOfNodes;
-};
-struct NeuralNetwork{
-    Layer* layers;
-    int noOfLayers;
-};
-float sigmoid(float x){
-    return (1.0f/(1.0f+std::exp(-x)));
-}
-void feedforward(Node& neuron , Layer& prevLayer){
-    float sum = neuron.bias;
-    for(int i=0;i<prevLayer.noOfNodes;i++){
-        sum+=prevLayer.nodes[i].output * neuron.weights[i];
-    }
-    neuron.z=sum;
-    neuron.output=sigmoid(sum);
-}
-Layer setupLayersAfter1(Layer prevLayer,int noOfNodes){
-    Layer currLayer;
-    currLayer.noOfNodes = noOfNodes;
-    currLayer.nodes = new Node[noOfNodes];
-    for(int i=0;i<noOfNodes;i++){
-        currLayer.nodes[i].bias=dist(rng);
-        currLayer.nodes[i].weights = new float[prevLayer.noOfNodes];
-        for(int j=0;j<prevLayer.noOfNodes;j++){
-            currLayer.nodes[i].weights[j] = dist(rng);
-        }
-        currLayer.nodes[i].output = 0.0f;
-        currLayer.nodes[i].z = 0.0f;
-    }
-    return currLayer;
-}
-Layer setupLayer1(int noOfNodes , std::vector<int> inp){
-    Layer currLayer ;
-    currLayer.noOfNodes = noOfNodes;
-    currLayer.nodes = new Node[noOfNodes];
-    for(int i=0;i<noOfNodes;i++){
-        currLayer.nodes[i].output=inp[i];
-    }
-    return currLayer;
-}
-NeuralNetwork setupNN(int noOfLayers,std::vector<int>nodesPerLayer,std::vector<int> input){
-    if(nodesPerLayer[0]!=input.size()){
-        std::cout<<"1st layer no of nodes != input";
-        exit(0);
-    };
-    NeuralNetwork nn;
-    nn.noOfLayers = noOfLayers;
-    nn.layers = new Layer[noOfLayers];
-    nn.layers[0] = setupLayer1(input.size(),input);
-    for(int i=1;i<noOfLayers;i++){
-        nn.layers[i] = setupLayersAfter1(nn.layers[i-1],nodesPerLayer[i]);
-    }
-    return nn;
-}
-void feedforward(const Layer& prevLayer , Layer& currLayer){
-    for(int i=0;i<currLayer.noOfNodes;i++){
-        float sum = currLayer.nodes[i].bias;
-        for(int j=0;j<prevLayer.noOfNodes;j++){
-            sum += (prevLayer.nodes[j].output*currLayer.nodes[i].weights[j]);
-        }
-        currLayer.nodes[i].z=sum;
-        currLayer.nodes[i].output=sigmoid(sum);
-    }
-}
 int main(void){
     std::cout<<"Neural Network from ground up in C++ yo" << std::endl;
 
-    NeuralNetwork nn = setupNN(3,std::vector<int>{2,2,1},std::vector<int>{1,0});
+    NeuralNetwork nn = setupNN(3,std::vector<int>{2,2,2},std::vector<int>{1,0});
     for(int i=1;i<nn.noOfLayers;i++){
         if(i==1){
             feedforward(nn.layers[0],nn.layers[i]);
@@ -91,10 +11,32 @@ int main(void){
             feedforward(nn.layers[i-1],nn.layers[i]);
         }
     }
-    for(int i=0;i<nn.layers[2].noOfNodes;i++){
-        std::cout<<nn.layers[2].nodes[i].output<<" ";
+    std::cout<<"\noutputs"<<std::endl;
+    for(int j=0;j<3;j++){
+        for(int i=0;i<nn.layers[j].noOfNodes;i++){
+            std::cout<<nn.layers[j].nodes[i].output<<" ";
+        }
     }
-
+    std::cout<<"\nZs"<<std::endl;
+    for(int j=0;j<3;j++){
+        for(int i=0;i<nn.layers[j].noOfNodes;i++){
+            std::cout<<nn.layers[j].nodes[i].z<<" ";
+        }
+    }
+    std::cout<<"\nbias"<<std::endl;
+    for(int j=0;j<3;j++){
+        for(int i=0;i<nn.layers[j].noOfNodes;i++){
+            std::cout<<nn.layers[j].nodes[i].bias<<" ";
+        }
+    }
+    std::cout<<"\nweights"<<std::endl;
+    for(int j=1;j<3;j++){
+        for(int i=0;i<nn.layers[j].noOfNodes;i++){
+            for(int k=0;k<nn.layers[j-1].noOfNodes;k++){
+            std::cout<<nn.layers[j].nodes[i].weights[k]<<" ";
+            }
+        }
+    }
 }
 
     // std::vector<std::vector<int>> X = {
