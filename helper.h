@@ -9,19 +9,19 @@ extern std::mt19937 rng;
 extern std::uniform_real_distribution<double> dist;
 
 struct Node{
-    float* weights;
+    std::vector<float> weights;
     float output;
     float bias;
     float z;//value put in sigmod function
     float delta;
 };
 struct Layer{
-    Node* nodes;
+    std::vector<Node> nodes;
     int noOfNodes;
 };
 struct NeuralNetwork{
-    Layer* layers;
+    std::vector<Layer> layers;
     int noOfLayers;
-    float* Losses ;
+    std::vector<float> Losses;
     float Loss;
 };

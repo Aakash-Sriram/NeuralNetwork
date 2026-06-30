@@ -5,7 +5,6 @@
 #include "helper.h"
 void loadweights(NeuralNetwork& nn, std::string filename);
 bool hasData(std::string filename);
-NeuralNetwork loadModel(std::string filename);
 void loadbias(NeuralNetwork& nn,std::string filename);
 int loadNoOfLayers(std::string filename);
 std::vector<int> loadInput(std::string filename);

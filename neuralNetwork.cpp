@@ -2,13 +2,13 @@
 float sigmoid(float x){
     return (1.0f/(1.0f+std::exp(-x)));
 }
-Layer setupLayersAfter1(Layer prevLayer,int noOfNodes){
+Layer setupLayersAfter1(const Layer& prevLayer,int noOfNodes){
     Layer currLayer;
     currLayer.noOfNodes = noOfNodes;
-    currLayer.nodes = new Node[noOfNodes];
+    currLayer.nodes.resize(noOfNodes);
     for(int i=0;i<noOfNodes;i++){
         currLayer.nodes[i].bias=dist(rng);
-        currLayer.nodes[i].weights = new float[prevLayer.noOfNodes];
+        currLayer.nodes[i].weights.resize(prevLayer.noOfNodes);
         for(int j=0;j<prevLayer.noOfNodes;j++){
             currLayer.nodes[i].weights[j] = dist(rng);
         }
@@ -17,23 +17,23 @@ Layer setupLayersAfter1(Layer prevLayer,int noOfNodes){
     }
     return currLayer;
 }
-Layer setupLayer1(int noOfNodes , std::vector<int> inp){
+Layer setupLayer1(int noOfNodes , const std::vector<int>& inp){
     Layer currLayer ;
     currLayer.noOfNodes = noOfNodes;
-    currLayer.nodes = new Node[noOfNodes];
+    currLayer.nodes.resize(noOfNodes);
     for(int i=0;i<noOfNodes;i++){
         currLayer.nodes[i].output=inp[i];
     }
     return currLayer;
 }
-NeuralNetwork setupNN(int noOfLayers,std::vector<int>nodesPerLayer,std::vector<int> input){
+NeuralNetwork setupNN(int noOfLayers,const std::vector<int>& nodesPerLayer,const std::vector<int>& input){
     if(nodesPerLayer[0]!=static_cast<int>(input.size())){
         std::cout<<"1st layer no of nodes != input";
         // exit(0);
     };
     NeuralNetwork nn;
     nn.noOfLayers = noOfLayers;
-    nn.layers = new Layer[noOfLayers];
+    nn.layers.resize(noOfLayers);
     nn.layers[0] = setupLayer1(input.size(),input);
     for(int i=1;i<noOfLayers;i++){
         nn.layers[i] = setupLayersAfter1(nn.layers[i-1],nodesPerLayer[i]);
@@ -50,7 +50,7 @@ void feedforward(const Layer& prevLayer , Layer& currLayer){
         currLayer.nodes[i].output=sigmoid(sum);
     }
 }
-void printModelDetails(NeuralNetwork& nn){
+void printModelDetails(const NeuralNetwork& nn){
     std::cout<<nn.noOfLayers<<std::endl;
     for(int i=0;i<nn.noOfLayers;i++){
         Layer l = nn.layers[i];
@@ -87,7 +87,7 @@ void printModelDetails(NeuralNetwork& nn){
         }
     } 
 }
-NeuralNetwork loadModel(std::string filename){
+NeuralNetwork loadModel(const std::string& filename){
     int noOfLayers = loadNoOfLayers(filename);
     std::vector<int> nodesPerLayer = loadNodesPerLayer(filename);
     std::vector<int> input = loadInput(filename);
@@ -96,31 +96,47 @@ NeuralNetwork loadModel(std::string filename){
     loadbias(nn, filename);
     return nn;
 }
-
-
-float ZwrtW(float weight,float input){
-    std::cout<<ZwrtW(weight,input)<<"\tDEBUG\n";
+float Loss(NeuralNetwork& nn,const std::vector<float>& expectedOutput){
+    nn.Losses.resize(expectedOutput.size());
+    Layer l = nn.layers[nn.noOfLayers-1];
+    nn.Loss=0;
+    for(int i=0;i<l.noOfNodes;i++){
+        float outp = (l.nodes[i].output-expectedOutput[i]);
+        nn.Losses[i]=0.5f*(outp*outp);
+        nn.Loss+=nn.Losses[i];
+    }
+    return nn.Loss;
+}
+float sigmoidDerivative(float output)
+{
+    return output * (1.0f - output);
+}
+float ZwrtW(float input){
+    std::cout<<input<<"\tDEBUG\n";
     return input;
     /*
     (∂z/∂w)​=x ​
     */
 }
 float YwrtZ(float output){
-    std::cout<<YwrtZ(output)<<"\tDEBUG\n";
+    std::cout<<output*(1.0f-output)<<"\tDEBUG\n";
     return(output*(1.0f-output));
     /*
     ∂y^∂z​​=y^​(1−y^​), y^ is predicted output 
     */
 }
 float LwrtY(float output,float expected){
-    std::cout<<LwrtY(output,expected)<<"\tDEBUG\n";
+    std::cout<<output-expected<<"\tDEBUG\n";
     return output-expected;
+    /*
+    ∂L/∂y^=y^−y
+    */
 }
-float LwrtW(float output,float expected,float weight,float input){
-    std::cout<<(LwrtY(output,expected)*YwrtZ(output)*ZwrtW(weight,input))<<"\tDEBUG\n";
-    return(LwrtY(output,expected)*YwrtZ(output)*ZwrtW(weight,input));
+float LwrtW(float output,float expected,float input){
+    float o = (LwrtY(output,expected)*YwrtZ(output)*ZwrtW(input));
+    std::cout<<o<<"\tDEBUG\n";
+    return o;
 }
-
 
 void LOSSwrtB(){
 
