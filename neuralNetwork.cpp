@@ -50,9 +50,9 @@ void feedforward(const Layer& prevLayer , Layer& currLayer){
         currLayer.nodes[i].output=sigmoid(sum);
     }
 }
-void printModelDetails(const NeuralNetwork& nn){
-    std::cout<<nn.noOfLayers<<std::endl;
-    for(int i=0;i<nn.noOfLayers;i++){
+void printModelDetails(const NeuralNetwork& nn ,int extras){
+    std::cout<<nn.noOfLayers<<std::endl;//LAYER COUNT
+    for(int i=0;i<nn.noOfLayers;i++){//NODES PER LAYER
         Layer l = nn.layers[i];
         if(i==nn.noOfLayers-1){
             std::cout<<l.noOfNodes;
@@ -61,7 +61,7 @@ void printModelDetails(const NeuralNetwork& nn){
         }
     }
     std::cout<<std::endl;
-    for(int i=0;i<nn.layers[0].noOfNodes;i++){
+    for(int i=0;i<nn.layers[0].noOfNodes;i++){//INPUT
         if(i==nn.layers[0].noOfNodes-1){
             std::cout<<nn.layers[0].nodes[i].output;
         }else{
@@ -69,7 +69,7 @@ void printModelDetails(const NeuralNetwork& nn){
         }
     }
     std::cout<<std::endl;
-    for(int i=1;i<nn.noOfLayers;i++){
+    for(int i=1;i<nn.noOfLayers;i++){//WEIGHTS
         Layer l = nn.layers[i];
         for(int j=0;j<l.noOfNodes;j++){
             Node n = l.nodes[j];
@@ -80,12 +80,30 @@ void printModelDetails(const NeuralNetwork& nn){
         }
     }
     std::cout<<std::endl;
-    for(int i=1;i<nn.noOfLayers;i++){
+    for(int i=1;i<nn.noOfLayers;i++){//BIAS
         Layer l = nn.layers[i];
         for(int j=0;j<l.noOfNodes;j++){
             std::cout<<l.nodes[j].bias<<" ";
         }
-    } 
+    }
+    if(extras==0){
+        return;
+    }
+    std::cout<<std::endl<<"=================="<<std::endl;
+    std::cout<<std::endl<<"OUTPUTS\n";
+    for(int i=1;i<nn.noOfLayers;i++){//OUTPUT
+        Layer l = nn.layers[i];
+        for(int j=0;j<l.noOfNodes;j++){
+            std::cout<<l.nodes[j].output<<" ";
+        }
+    }
+
+    std::cout<<std::endl<<"LAST LAYER DELTAS\n";
+    for(int i=0;i<nn.layers[nn.noOfLayers-1].noOfNodes;i++){
+        std::cout<<nn.layers[nn.noOfLayers-1].nodes[i].delta<<std::endl;
+    }
+
+
 }
 NeuralNetwork loadModel(const std::string& filename){
     int noOfLayers = loadNoOfLayers(filename);
@@ -111,13 +129,6 @@ float sigmoidDerivative(float output)
 {
     return output * (1.0f - output);
 }
-float ZwrtW(float input){
-    std::cout<<input<<"\tDEBUG\n";
-    return input;
-    /*
-    (∂z/∂w)​=x ​
-    */
-}
 float YwrtZ(float output){
     std::cout<<output*(1.0f-output)<<"\tDEBUG\n";
     return(output*(1.0f-output));
@@ -133,11 +144,24 @@ float LwrtY(float output,float expected){
     */
 }
 float LwrtW(float output,float expected,float input){
-    float o = (LwrtY(output,expected)*YwrtZ(output)*ZwrtW(input));
+    float o = (LwrtY(output,expected)*YwrtZ(output)*input);
     std::cout<<o<<"\tDEBUG\n";
     return o;
 }
 
-void LOSSwrtB(){
-
+void deltaLastLayer(Layer& last ,const std::vector<float>& expected){
+    for(int i=0;i<last.noOfNodes;i++){
+        Node& node  = last.nodes[i];
+        node.delta = YwrtZ(node.output)*LwrtY(node.output,expected[i]);
+    }
 }
+
+// void backprop(const Layer& currLayer , Layer prevLayer){
+//     for(int i=0;i<prevLayer.noOfNodes;i++){
+//         for(int j=0;j<currLayer.noOfNodes;j++){
+//             prevLayer.nodes[i].gradient = currLayer.nodes[j].delta * prevLayer.nodes[i].output;
+            
+             
+//         }
+//     }
+// }

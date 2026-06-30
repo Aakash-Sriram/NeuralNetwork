@@ -14,6 +14,8 @@ struct Node{
     float bias;
     float z;//value put in sigmod function
     float delta;
+    float gradient;
+    
 };
 struct Layer{
     std::vector<Node> nodes;
@@ -21,7 +23,7 @@ struct Layer{
 };
 struct NeuralNetwork{
     std::vector<Layer> layers;
-    int noOfLayers;
     std::vector<float> Losses;
+    int noOfLayers;
     float Loss;
 };
