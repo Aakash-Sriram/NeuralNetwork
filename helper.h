@@ -13,6 +13,7 @@ struct Node{
     float output;
     float bias;
     float z;//value put in sigmod function
+    float delta;
 };
 struct Layer{
     Node* nodes;
@@ -21,4 +22,6 @@ struct Layer{
 struct NeuralNetwork{
     Layer* layers;
     int noOfLayers;
+    float* Losses ;
+    float Loss;
 };

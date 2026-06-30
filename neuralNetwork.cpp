@@ -96,3 +96,32 @@ NeuralNetwork loadModel(std::string filename){
     loadbias(nn, filename);
     return nn;
 }
+
+
+float ZwrtW(float weight,float input){
+    std::cout<<ZwrtW(weight,input)<<"\tDEBUG\n";
+    return input;
+    /*
+    (∂z/∂w)​=x ​
+    */
+}
+float YwrtZ(float output){
+    std::cout<<YwrtZ(output)<<"\tDEBUG\n";
+    return(output*(1.0f-output));
+    /*
+    ∂y^∂z​​=y^​(1−y^​), y^ is predicted output 
+    */
+}
+float LwrtY(float output,float expected){
+    std::cout<<LwrtY(output,expected)<<"\tDEBUG\n";
+    return output-expected;
+}
+float LwrtW(float output,float expected,float weight,float input){
+    std::cout<<(LwrtY(output,expected)*YwrtZ(output)*ZwrtW(weight,input))<<"\tDEBUG\n";
+    return(LwrtY(output,expected)*YwrtZ(output)*ZwrtW(weight,input));
+}
+
+
+void LOSSwrtB(){
+
+}
